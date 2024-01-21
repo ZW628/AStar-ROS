@@ -80,11 +80,12 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_) {
     // CLOCK_MONOTONIC 表示从某个固定时间点（通常系统启动时）开始的单调递增的时间，适合于测量时间间隔和计算持续时间
     clock_gettime(CLOCK_MONOTONIC, &start);
 
+    // A* 算法不断迭代，每次选取最有希望到达目标的节点进行拓展，直至找到目标节点或无法继续拓展
     while (!openSet.empty()) {
         auto current_it = openSet.begin();
         current = *current_it;
 
-        // 从开放集中选取具有最小F值的节点
+        // 从开放集中选取具有最小F值的节点 作为当前节点（current）
         for (auto it = openSet.begin(); it != openSet.end(); it++) {
             auto node = *it;
             if (node->getScore() <= current->getScore()) {
@@ -102,17 +103,20 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_) {
             break;
         }
 
+        // 当前节点坐标是否等于目标坐标，如果是，则找到了路径，跳出循环
         if (current->coordinates == target_) {
             break;
         }
 
+        // 将当前节点从开放集移动到关闭集（closedSet），表示已经探索过该节点
         closedSet.push_back(current);
         openSet.erase(current_it);
 
         // directions为4：水平移动，8：对角线移动
         for (uint i = 0; i < directions; ++i) {
+            // 遍历8个可能的方向（根据 directions 的值决定是否包括对角线方向）来生成新坐标（newCoordinates）
             Vec2i newCoordinates(current->coordinates + direction[i]);
-            // 查找newCoordinates是否在closedSet中
+            // 检查新坐标是否在障碍物列表中或者已经在关闭集中，如果是，则跳过这个新坐标点
             if (detectCollision(newCoordinates) || findNodeOnList(closedSet, newCoordinates)) {
                 continue;
             }
@@ -121,13 +125,17 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_) {
             // i 大于等于4时，则可能表示对角线移动，代价更高为14
             uint totalCost = current->G + ((i < 4) ? 10 : 14);
 
+            // 查找新坐标点在开放集中是否存在对应节点（successor），不存在则创建新节点并加入开放集
             Node* successor = findNodeOnList(openSet, newCoordinates);
             if (successor == nullptr) {
-                successor = new Node(newCoordinates, current);
+                successor = new Node(newCoordinates, current); // current为父节点
                 successor->G = totalCost;
-                successor->H = heuristic(successor->coordinates, target_);
+                successor->H =
+                    heuristic(successor->coordinates, target_); // std::function<uint(Vec2i, Vec2i)> heuristic
                 openSet.push_back(successor);
-            } else if (totalCost < successor->G) {
+            }
+            // 存在，且如果新计算出的G值更小，则更新其G值和父节点信息
+            else if (totalCost < successor->G) {
                 successor->parent = current;
                 successor->G = totalCost;
             }
@@ -136,6 +144,7 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_) {
 
     CoordinateList path;
 
+    // 保存路径
     if (current->coordinates == target_) {
         while (current != nullptr) {
             path.push_back(current->coordinates);

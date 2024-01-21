@@ -2,25 +2,18 @@
 
 #include <iostream>
 
-PathGenerator::PathGenerator()
-{
-    subscribeAndPublish();
-}
+PathGenerator::PathGenerator() { subscribeAndPublish(); }
 
-PathGenerator::~PathGenerator()
-{
+PathGenerator::~PathGenerator() {}
 
-}
-
-void PathGenerator::subscribeAndPublish()
-{
+void PathGenerator::subscribeAndPublish() {
     sub_grid_map_ = nh_.subscribe<nav_msgs::OccupancyGrid>("map", 1, &PathGenerator::gridMapHandler, this);
-    sub_nav_goal_ = nh_.subscribe<geometry_msgs::PoseStamped>("move_base_simple/goal", 1, &PathGenerator::navGoalHandler, this);
+    sub_nav_goal_ =
+        nh_.subscribe<geometry_msgs::PoseStamped>("move_base_simple/goal", 1, &PathGenerator::navGoalHandler, this);
     pub_robot_path_ = nh_.advertise<nav_msgs::Path>("robot_path", 1, true);
 }
 
-void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_msg)
-{
+void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_msg) {
     ROS_INFO("Generating map..");
     map_exsit_ = false;
 
@@ -33,13 +26,11 @@ void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_
 
     // Add Wall
     int x, y;
-    for(int i=0; i<map_info_.width*map_info_.height; i++)
-    {
-        x = i%map_info_.width;
-        y = i/map_info_.width;
+    for (int i = 0; i < map_info_.width * map_info_.height; i++) {
+        x = i % map_info_.width;
+        y = i / map_info_.width;
 
-        if(map_msg->data[i] != 0)
-        {
+        if (map_msg->data[i] != 0) {
             map_generator_.addCollision({x, y}, 3);
         }
     }
@@ -48,15 +39,14 @@ void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_
     map_exsit_ = true;
 }
 
-void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &goal_msg)
-{
-    if(!map_exsit_) return;
+void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &goal_msg) {
+    if (!map_exsit_) return;
 
     ROS_INFO("\033[1;32mGoal received!\033[0m");
 
     // Round goal coordinate
-    float goal_x = round(goal_msg->pose.position.x*10)/10;
-    float goal_y = round(goal_msg->pose.position.y*10)/10;
+    float goal_x = round(goal_msg->pose.position.x * 10) / 10;
+    float goal_y = round(goal_msg->pose.position.y * 10) / 10;
 
     // Remmaping coordinate
     AStar::Vec2i target;
@@ -71,19 +61,19 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     auto path = map_generator_.findPath(source, target);
 
     nav_msgs::Path path_msg;
-    if(path.empty())
-    {
+    if (path.empty()) {
         ROS_INFO("\033[1;31mFail generate path!\033[0m");
         return;
     }
 
-    for(auto coordinate=path.end()-1; coordinate>=path.begin(); --coordinate)
-    {
+    for (auto coordinate = path.end() - 1; coordinate >= path.begin(); --coordinate) {
         geometry_msgs::PoseStamped point_pose;
 
         // Remmaping coordinate
-        point_pose.pose.position.x = (coordinate->x + map_info_.origin.position.x / map_info_.resolution) * map_info_.resolution;
-        point_pose.pose.position.y = (coordinate->y + map_info_.origin.position.y / map_info_.resolution) * map_info_.resolution;
+        point_pose.pose.position.x =
+            (coordinate->x + map_info_.origin.position.x / map_info_.resolution) * map_info_.resolution;
+        point_pose.pose.position.y =
+            (coordinate->y + map_info_.origin.position.y / map_info_.resolution) * map_info_.resolution;
         path_msg.poses.push_back(point_pose);
     }
 
@@ -93,8 +83,7 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     ROS_INFO("\033[1;36mSuccess generate path!\033[0m");
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     ros::init(argc, argv, "path_generator");
 
     ROS_INFO("\033[1;32m----> Path Generator Node is Started.\033[0m");
