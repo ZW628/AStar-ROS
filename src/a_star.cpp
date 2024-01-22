@@ -169,8 +169,8 @@ AStar::Node* AStar::Generator::findNodeOnList(NodeSet& nodes_, Vec2i coordinates
 
 void AStar::Generator::releaseNodes(NodeSet& nodes_) {
     for (auto it = nodes_.begin(); it != nodes_.end();) {
-        delete *it;
-        it = nodes_.erase(it);
+        delete *it; // 释放内存
+        it = nodes_.erase(it); // 从容器 nodes_ 中移除当前迭代器 it 所指向的元素，并更新迭代器 it，使其指向下一个元素
     }
 }
 
