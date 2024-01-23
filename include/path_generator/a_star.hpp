@@ -32,7 +32,7 @@ struct Node {
     Node* parent;
 
     // 构造函数
-    Node(Vec2i coord_, Node* parent_ = nullptr);
+    Node(Vec2i coord_, Node* parent_ = nullptr); // 第二个参数有默认值，仅传递第一个参数也可以
     // 成员函数
     uint getScore();
 };

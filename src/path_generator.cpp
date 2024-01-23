@@ -45,6 +45,7 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     ROS_INFO("\033[1;32mGoal received!\033[0m");
 
     // Round goal coordinate
+    // 四舍五入操作
     float goal_x = round(goal_msg->pose.position.x * 10) / 10;
     float goal_y = round(goal_msg->pose.position.y * 10) / 10;
 
@@ -70,6 +71,8 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
         geometry_msgs::PoseStamped point_pose;
 
         // Remmaping coordinate
+        // 将这些相对的或简化表示的坐标还原成与实际地图匹配的真实世界坐标
+        // origin.position：地图原点的坐标值
         point_pose.pose.position.x =
             (coordinate->x + map_info_.origin.position.x / map_info_.resolution) * map_info_.resolution;
         point_pose.pose.position.y =
