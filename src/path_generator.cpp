@@ -17,7 +17,7 @@ void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_
     ROS_INFO("Generating map..");
     map_exsit_ = false;
 
-    map_info_ = map_msg->info;
+    map_info_ = map_msg->info; // OccupancyGrid::MapMetaData->info
 
     // Generate Map, Options
     map_generator_.setWorldSize({(int)map_info_.width, (int)map_info_.height}); //{x, y}
@@ -55,6 +55,8 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     target.y = (goal_y - map_info_.origin.position.y) / map_info_.resolution;
 
     AStar::Vec2i source;
+    //(0, 0) 表示robot的起始位置
+    // map_info_.origin是地图数据结构中的原点坐标，它定义了地图在世界坐标系中的实际位置
     source.x = (0 - map_info_.origin.position.x) / map_info_.resolution;
     source.y = (0 - map_info_.origin.position.y) / map_info_.resolution;
 

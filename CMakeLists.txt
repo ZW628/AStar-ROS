@@ -10,16 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
 )
 
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
-################################################
-## Declare ROS messages, services and actions ##
-################################################
 
-###################################
-## catkin specific configuration ##
-###################################
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES path_generator
@@ -27,9 +19,7 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-###########
-## Build ##
-###########
+
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 

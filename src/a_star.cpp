@@ -189,7 +189,7 @@ AStar::Vec2i AStar::Heuristic::getDelta(Vec2i source_, Vec2i target_) {
 
 AStar::uint AStar::Heuristic::manhattan(Vec2i source_, Vec2i target_) {
     auto delta = std::move(getDelta(source_, target_));
-    return static_cast<uint>(10 * (delta.x + delta.y));
+    return static_cast<uint>(10 * (delta.x + delta.y)); // 10 是一个调节参数
 }
 
 AStar::uint AStar::Heuristic::euclidean(Vec2i source_, Vec2i target_) {
