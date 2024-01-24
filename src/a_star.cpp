@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+// 提供了 _1, _2, _3, ..., _N 等占位符，用于配合 std::bind 函数使用
 using namespace std::placeholders;
 
 bool AStar::Vec2i::operator==(const Vec2i& coordinates_) { return (x == coordinates_.x && y == coordinates_.y); }

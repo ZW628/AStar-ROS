@@ -27,9 +27,11 @@ void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_
     // Add Wall
     int x, y;
     for (int i = 0; i < map_info_.width * map_info_.height; i++) {
+        // 计算i的坐标:（x,y）
         x = i % map_info_.width;
         y = i / map_info_.width;
 
+        // pgm图像中的数据转换成 nav_msgs::OccupancyGrid 消息格式，其中 data 字段就是一个包含这些栅格状态的一维数组
         if (map_msg->data[i] != 0) {
             map_generator_.addCollision({x, y}, 3);
         }
